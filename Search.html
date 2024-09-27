@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CrowdFunding</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+<div class="header">CrowdFunding System</div>
+<div class="content">
+    <div class="nav">
+        <a class="nav-item" href="./index.html">Home</a>
+        <a class="nav-item" href="./fundraiser-list.html">Fundraiser List</a>
+    </div>
+    <div class="filter-wrapper">
+        <div class="filter-item">
+            <span>CATEGORY：</span>
+            <select id="categorySelectDom" value="">
+                <option value="" disabled selected>please select...</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <span>ORGANIZER：</span>
+            <select id="organizerSelectDom"  value="">
+                <option value="" disabled selected>please select...</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <span>CITY：</span>
+            <select id="citySelectDom"  value="">
+                <option value="" disabled selected>please select...</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <button onclick="getFundraiserList()">SEARCH</button>
+            <button onclick="resetData()">RESET</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table border="1">
+            <thead>
+            <tr>
+                <th>INDEX</th>
+                <th>ORGANIZER</th>
+                <th>CATEGORY</th>
+                <th>CAPTION</th>
+                <th>TARGET_FUNDING</th>
+                <th>CURRENT_FUNDING</th>
+                <th>CITY</th>
+                <th>OPERATION</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+</div>
+</body>
+<script src="./js/ajax.js"></script>
+<script>
+    const oCategorySelectDom = document.getElementById('categorySelectDom');
+    const oOrganizerSelectDom = document.getElementById('organizerSelectDom');
+    const oCitySelectDom = document.getElementById('citySelectDom');
+
+    window.onload = function() {
+        getAllCategory();
+        getAllOrganizer();
+        getAllCity();
+        getFundraiserList();
+    }
+    // get category filter list
+    function getAllCategory() {
+        oCategorySelectDom.innerHTML = '<option value="" disabled selected>please select...</option>';
+        getService('api/getCategoryList').then(res => {
+            console.log(res);
+            res.forEach(item => {
+                const oOption = document.createElement('option');
+                oOption.innerText = item.NAME;
+                oOption.value = item.CATEGORY_ID;
+                console.log(oOption);
+                oCategorySelectDom.appendChild(oOption);
+            });
+        }).catch(error => {
+            console.log(error)
+        });
+    }
+    // get organizer filter list
+    function getAllOrganizer() {
+        oOrganizerSelectDom.innerHTML = '<option value="" disabled selected>please select...</option>';
+        getService('api/getOrganizers').then(res => {
+            console.log(res);
+            res.forEach(item => {
+                const oOption = document.createElement('option');
+                oOption.innerText = item.ORGANIZER;
+                oOption.value = item.ORGANIZER;
+                oOrganizerSelectDom.appendChild(oOption);
+            });
+        }).catch(error => {
+            console.log(error)
+        });
+    }
+    // get city filter list
+    function getAllCity() {
+        oCitySelectDom.innerHTML = '<option value="" disabled selected>please select...</option>';
+        getService('api/getCity').then(res => {
+            console.log(res);
+            res.forEach(item => {
+                const oOption = document.createElement('option');
+                oOption.innerText = item.CITY;
+                oOption.value = item.CITY;
+                oCitySelectDom.appendChild(oOption);
+            });
+        }).catch(error => {
+            console.log(error)
+        });
+    }
+    // get all data by filter item
+    function getFundraiserList() {
+        console.log(123);
+        getService('api/getFundraiserList', {
+            CATEGORY_ID: oCategorySelectDom.value,
+            ORGANIZER: oOrganizerSelectDom.value,
+            CITY: oCitySelectDom.value
+        }).then(res => {
+            setTableData(res);
+        }).catch(error => {
+            console.log(error)
+        });
+    }
+
+    // set table data
+    function setTableData(res) {
+        const oTBody = document.getElementById('tbody');
+        oTBody.innerHTML = '';
+        console.log(123, res);
+        if (!res.length) {
+            // no data
+            const oDiv = document.createElement('div');
+            oDiv.innerHTML = 'NO LIST';
+            oDiv.id = 'no-list'
+            oDiv.style.textAlign = 'center';
+            oDiv.style.fontWeight = 'bold';
+            oDiv.style.color = '#FF0000';
+            document.getElementsByClassName('table-wrapper')[0].appendChild(oDiv);
+            return;
+        } else {
+            document.getElementById('no-list')?.remove();
+        }
+        res.forEach(item => {
+            const oTr = document.createElement('tr');
+            oTr.innerHTML = `
+                <td>${item.FUNDRAISER_ID}</td>
+                <td>${item.ORGANIZER}</td>
+                <td>${item.CATEGORY_NAME}</td>
+                <td>${item.CAPTION}</td>
+                <td>${item.TARGET_FUNDING}</td>
+                <td>${item.CURRENT_FUNDING}</td>
+                <td>${item.CITY}</td>
+                <td width="120">
+                <a href="./detail.html?fundraiser_id=${item.FUNDRAISER_ID}"><button>VIEW</button></a>
+                <button id="donation-${item.FUNDRAISER_ID}">DONATION</button>
+                </td>
+            `;
+            oTBody.appendChild(oTr);
+            // donation click handler
+            const oDonationBtn = document.getElementById(`donation-${item.FUNDRAISER_ID}`);
+            oDonationBtn.onclick = function () {
+                alert('This feature is under construction');
+            }
+        });
+    }
+
+    // reset all data
+    function resetData() {
+        oOrganizerSelectDom.value = '';
+        oCitySelectDom.value = '';
+        oCategorySelectDom.value = '';
+        getFundraiserList();
+    }
+</script>
+</html>
