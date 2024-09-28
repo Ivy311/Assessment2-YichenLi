@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CrowdFunding</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+<div class="header">CrowdFunding System</div>
+<div class="content">
+    <div class="nav">
+        <a class="nav-item" href="./index.html">Home</a>
+        <a class="nav-item" href="./fundraiser-list.html">Fundraiser List</a>
+    </div>
+    <div class="detail">
+        <h1 id="header-title"></h1>
+        <div style="text-align: center">
+            <div class="mb10"> ORGANIZER:  <span id="organizer"></span></div>
+            <div class="mb10"> CATEGORY NAME:  <span id="category-name"></span></div>
+            <div class="mb10"> TARGET FUNDING:  <span id="target-funding"></span></div>
+            <div class="mb10"> CURRENT FUNDING:  <span id="current-funding"></span></div>
+            <div class="mb10"> CITY:  <span id="city"></span></div>
+            <button onclick="donation()">DONATION</button>
+        </div>
+    </div>
+</div>
+</body>
+<script src="./js/ajax.js"></script>
+<script>
+    let detailInfo;
+    window.onload = function() {
+        getDetail();
+    }
+    // get detail by fundraiser id
+    function getDetail() {
+        const id = location.search.split('=')[1];
+        getService('api/getDetail', {
+            FUNDRAISER_ID: id
+        }).then(res => {
+            detailInfo = res;
+            // render data
+            const oHeaderTitle = document.getElementById('header-title');
+            oHeaderTitle.innerText = detailInfo.CAPTION;
+            const oOrganizer = document.getElementById('organizer');
+            oOrganizer.innerText = detailInfo.ORGANIZER;
+            const oCategoryName = document.getElementById('category-name');
+            oCategoryName.innerText = detailInfo.CATEGORY_NAME;
+            const oTargetFunding = document.getElementById('target-funding');
+            oTargetFunding.innerText = detailInfo.TARGET_FUNDING;
+            const oCurrentFunding = document.getElementById('current-funding');
+            oCurrentFunding.innerText = detailInfo.CURRENT_FUNDING;
+            const oCity = document.getElementById('city');
+            oCity.innerText = detailInfo.CITY;
+        });
+    }
+    function donation() {
+        // open alert
+        alert('This feature is under construction');
+    }
+</script>
+</html>
