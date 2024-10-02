@@ -9,12 +9,16 @@
     <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-<div class="header">CrowdFunding System</div>
-<div class="content">
-    <div class="nav">
-        <a class="nav-item" href="./index.html">Home</a>
-        <a class="nav-item" href="./fundraiser-list.html">Fundraiser List</a>
+<div class="inner-header">
+    <div class="inner">
+        <div class="inner-header-name">CrowdFunding System</div>
+        <div class="inner-nav">
+            <a class="inner-nav-item" href="./index.html">Home</a>
+            <a class="inner-nav-item" href="./fundraiser-list.html">Fundraiser List</a>
+        </div>
     </div>
+</div>
+<div class="content">
     <div class="filter-wrapper">
         <div class="filter-item">
             <span>CATEGORY：</span>
@@ -39,23 +43,7 @@
             <button onclick="resetData()">RESET</button>
         </div>
     </div>
-    <div class="table-wrapper">
-        <table border="1">
-            <thead>
-            <tr>
-                <th>INDEX</th>
-                <th>ORGANIZER</th>
-                <th>CATEGORY</th>
-                <th>CAPTION</th>
-                <th>TARGET_FUNDING</th>
-                <th>CURRENT_FUNDING</th>
-                <th>CITY</th>
-                <th>OPERATION</th>
-            </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
-    </div>
+    <div id="list-wrapper"></div>
 </div>
 </body>
 <script src="./js/ajax.js"></script>
@@ -130,10 +118,9 @@
         });
     }
 
-    // set table data
     function setTableData(res) {
-        const oTBody = document.getElementById('tbody');
-        oTBody.innerHTML = '';
+        const oList = document.getElementById('list-wrapper');
+        oList.innerHTML = '';
         console.log(123, res);
         if (!res.length) {
             // no data
@@ -143,27 +130,36 @@
             oDiv.style.textAlign = 'center';
             oDiv.style.fontWeight = 'bold';
             oDiv.style.color = '#FF0000';
-            document.getElementsByClassName('table-wrapper')[0].appendChild(oDiv);
+            oList.appendChild(oDiv);
             return;
         } else {
             document.getElementById('no-list')?.remove();
         }
         res.forEach(item => {
-            const oTr = document.createElement('tr');
-            oTr.innerHTML = `
-                <td>${item.FUNDRAISER_ID}</td>
-                <td>${item.ORGANIZER}</td>
-                <td>${item.CATEGORY_NAME}</td>
-                <td>${item.CAPTION}</td>
-                <td>${item.TARGET_FUNDING}</td>
-                <td>${item.CURRENT_FUNDING}</td>
-                <td>${item.CITY}</td>
-                <td width="120">
-                <a href="./detail.html?fundraiser_id=${item.FUNDRAISER_ID}"><button>VIEW</button></a>
-                <button id="donation-${item.FUNDRAISER_ID}">DONATION</button>
-                </td>
+            const oDiv = document.createElement('div');
+            oDiv.className = 'list-item';
+            oDiv.innerHTML = `
+                <a href="./detail.html?fundraiser_id=${item.FUNDRAISER_ID}">
+                    <div class="item-header">
+                        <div class="category">${item.CATEGORY_NAME}</div>
+                        <div class="caption">${item.CAPTION}</div>
+                    </div>
+                    <div class="item-content">
+                        <div class="money">
+                            <div class="current">${item.CURRENT_FUNDING}</div> =>
+                            <div class="target">${item.TARGET_FUNDING}</div>
+                        </div>
+                        <div class="author-info">
+                                <div class="organizer">${item.ORGANIZER}</div>
+                                <div class="city">（${item.CITY}）</div>
+                        </div>
+                        <div class="operate-btns">
+                        <button id="donation-${item.FUNDRAISER_ID}">DONATION</button>
+                        </div>
+                    </div>
+                </a>
             `;
-            oTBody.appendChild(oTr);
+            oList.appendChild(oDiv);
             // donation click handler
             const oDonationBtn = document.getElementById(`donation-${item.FUNDRAISER_ID}`);
             oDonationBtn.onclick = function () {
@@ -171,6 +167,7 @@
             }
         });
     }
+
 
     // reset all data
     function resetData() {
